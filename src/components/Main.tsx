@@ -11,6 +11,8 @@ import WeatherDetails from "./WeatherDetails";
 import convertMtoKm from "@/utils/converMtoKm";
 import convertWindSpeed from "@/utils/convertWindSpeed";
 import ForcastWeatherDetailsComponent from "./ForcastWeatherDetailsComponent";
+import { useAtom } from "jotai";
+import { placeAtom } from "@/app/atom";
 interface WeatherResponse {
   cod: string;
   message: number;
@@ -87,12 +89,13 @@ interface Coord {
 type Props = {};
 
 function Main({}: Props) {
+  const [place, setPlace] = useAtom(placeAtom);
   const { isPending, isError, data } = useQuery<WeatherResponse>({
-    queryKey: ["weatherData"],
+    queryKey: ["weatherData", place],
     queryFn: async () =>
       (
         await axios.get(
-          `https://api.openweathermap.org/data/2.5/forecast?q=Dhaka&appid=${process.env.NEXT_PUBLIC_WEATHER_API}&cnt=56`,
+          `https://api.openweathermap.org/data/2.5/forecast?q=${place}&appid=${process.env.NEXT_PUBLIC_WEATHER_API}&cnt=56`,
         )
       ).data,
   });

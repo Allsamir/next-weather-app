@@ -50,6 +50,7 @@ function Navbar({}: Props) {
       return;
     } else {
       setShowSuggestions(false);
+      setPlace(city);
       setErrorMessage("");
     }
   }
@@ -67,7 +68,7 @@ function Navbar({}: Props) {
           <div className="relative">
             <SearchBar
               value={city}
-              //onSubmit={}
+              onSubmit={handleOnSubmit}
               onChange={(e) => handleOnChange(e.target.value)}
             />
             <SuggestionBox
@@ -99,7 +100,7 @@ function SuggestionBox({
       {" "}
       {((showSuggestions && suggestions.length) || errorMessage) && (
         <ul className="mb-4 min-w-[200px] bg-white absolute border top-[44px] left-0 border-gray-300 rounded-lg flex flex-col gap-1 py-2 px-2">
-          {errorMessage && suggestions.length > 1 && (
+          {errorMessage && suggestions.length < 1 && (
             <li className="text-red-500 p-1">{errorMessage}</li>
           )}
           {suggestions.map((item, i) => (
