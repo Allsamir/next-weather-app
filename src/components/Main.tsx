@@ -121,7 +121,6 @@ function Main({}: Props) {
     return groupedData;
   }
 
-  console.log(firstData);
   if (isPending) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -140,7 +139,7 @@ function Main({}: Props) {
   }
   return (
     <div className="flex flex-col bg-gray-100">
-      <Navbar />
+      <Navbar location={place} />
       <main className="px-3 w-full max-w-7xl mx-auto flex flex-col gap-10 pb-10 pt-4">
         {/* Today forcast */}
         <section className="today_data">

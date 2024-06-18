@@ -7,10 +7,10 @@ import axios from "axios";
 import { useAtom } from "jotai";
 import { placeAtom } from "@/app/atom";
 
-type Props = {};
+type Props = { location: string };
 
 const API_KEY = process.env.NEXT_PUBLIC_WEATHER_API;
-function Navbar({}: Props) {
+function Navbar({ location }: Props) {
   const [city, setCity] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -54,6 +54,20 @@ function Navbar({}: Props) {
       setErrorMessage("");
     }
   }
+  function handleCurrentLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        try {
+          const response = await axios.get(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`,
+          );
+          setPlace(response.data.name);
+        } catch (error) {}
+      });
+    }
+  }
   return (
     <nav className="shadow-sm sticky left-0 top-0 bg-white">
       <div className="h-[80px] w-full flex justify-between items-center mx-auto px-4">
@@ -62,10 +76,14 @@ function Navbar({}: Props) {
           <MdWbSunny className="text-3xl mt-1 text-yellow-300" />
         </p>
         <section className="flex gap-2 items-center">
-          <FaLocationDot className="text-2xl text-gray-400 hover:text-black cursor-pointer" />
-          <FaLocationCrosshairs className="text-3xl text-gray-400 hover:text-black cursor-pointer" />
-          <p className="text-slate-900/80 text-sm">Bangladesh</p>
-          <div className="relative">
+          <FaLocationCrosshairs
+            title="Your Current Location"
+            onClick={handleCurrentLocation}
+            className="text-3xl text-gray-400 hover:text-black cursor-pointer"
+          />
+          <FaLocationDot className="text-2xl text-black" />
+          <p className="text-slate-900/80 text-sm">{location}</p>
+          <div className="relative md:flex hidden">
             <SearchBar
               value={city}
               onSubmit={handleOnSubmit}
