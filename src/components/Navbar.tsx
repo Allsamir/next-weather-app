@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import { FaLocationCrosshairs, FaLocationDot } from "react-icons/fa6";
 import { MdWbSunny } from "react-icons/md";
 import SearchBar from "./SearchBar";
@@ -6,6 +7,16 @@ import SearchBar from "./SearchBar";
 type Props = {};
 
 function Navbar({}: Props) {
+  const [city, setCity] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  function handleOnChange(value: string) {
+    setCity(value);
+    setErrorMessage("");
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }
   return (
     <nav className="shadow-sm sticky left-0 top-0 bg-white">
       <div className="h-[80px] w-full flex justify-between items-center mx-auto px-4">

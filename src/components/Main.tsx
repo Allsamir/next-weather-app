@@ -6,6 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
 import Container from "./Container";
 import { convertToCelsius } from "@/utils/convertToC";
+import WeatherIcons from "./WeatherIcons";
+import WeatherDetails from "./WeatherDetails";
+import convertMtoKm from "@/utils/converMtoKm";
+import convertWindSpeed from "@/utils/convertWindSpeed";
+import ForcastWeatherDetailsComponent from "./ForcastWeatherDetailsComponent";
 interface WeatherResponse {
   cod: string;
   message: number;
@@ -93,7 +98,27 @@ function Main({}: Props) {
   });
 
   const firstData = data?.list[0];
+  const today = moment().format("YYYY-MM-DD");
+  const groupedData = groupWeatherDataByDate(data);
+  function groupWeatherDataByDate(
+    weatherData: WeatherResponse | undefined,
+  ): Record<string, WeatherData[]> {
+    const groupedData: Record<string, WeatherData[]> = {};
 
+    weatherData?.list.forEach((item) => {
+      const date = item.dt_txt.split(" ")[0]; // Extract the date part from dt_txt
+
+      if (!groupedData[date]) {
+        groupedData[date] = [];
+      }
+
+      groupedData[date].push(item);
+    });
+
+    return groupedData;
+  }
+
+  console.log(firstData);
   if (isPending) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -114,6 +139,7 @@ function Main({}: Props) {
     <div className="flex flex-col bg-gray-100">
       <Navbar />
       <main className="px-3 w-full max-w-7xl mx-auto flex flex-col gap-10 pb-10 pt-4">
+        {/* Today forcast */}
         <section className="today_data">
           <div>
             {/* today date */}
@@ -145,20 +171,66 @@ function Main({}: Props) {
                 </p>
               </div>
               {/* Time and Date */}
-              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pt-4">
-                {data.list.map((d, i) => (
+              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-evenly pt-4">
+                {groupedData[today]?.map((d, i) => (
                   <div
                     className="flex flex-col justify-between gap-2 items-center text-xs"
                     key={i}
                   >
-                    <p>{moment(d.dt_txt).format("LT")}</p>
+                    <p className="whitespace-nowrap">
+                      {moment(d.dt_txt).format("LT")}
+                    </p>
+                    <WeatherIcons iconname={d.weather[0].icon} />
+                    <p>{convertToCelsius(d.main.temp) + "°C"}</p>
                   </div>
                 ))}
               </div>
             </Container>
           </div>
+          <div className="flex gap-4 mt-4">
+            {/* left */}
+            <Container className="w-fit justify-center flex-col px-4 items-center">
+              <p className="text-center capitalize">
+                {firstData?.weather[0].description}
+              </p>
+              <WeatherIcons iconname={firstData?.weather[0].icon ?? ""} />
+            </Container>
+            {/* right */}
+            <Container className="bg-yellow-300/80 px-6 gap-4 justify-between overflow-auto">
+              <WeatherDetails
+                visability={convertMtoKm(firstData?.visibility ?? 1000)}
+                aipressure={`${firstData?.main.pressure ?? 5}%`}
+                humidity={`${firstData?.main.humidity ?? 6}hpa`}
+                sunrise={`${moment.unix(data.city.sunrise).format("HH:mm")} AM`}
+                sunset={`${moment.unix(data.city.sunset).format("HH:mm")} PM`}
+                windSpeed={convertWindSpeed(firstData?.wind.speed ?? 5)}
+              />
+            </Container>
+          </div>
         </section>
-        <section className="sevenDays_data"></section>
+        {/* Seven days forcast */}
+        <section className="sevenDays_data flex w-full  flex-col gap-4">
+          <p className="text-2xl ">Forcast (7 days)</p>
+          {Object.keys(groupedData).map((date, key) => (
+            <ForcastWeatherDetailsComponent
+              key={key}
+              description={groupedData[date][0].weather[0].description}
+              weatherIcon={groupedData[date][0].weather[0].icon}
+              date={moment(groupedData[date][0].dt_txt).format("dddd")}
+              day={moment(groupedData[date][0].dt_txt).format("MMMM")}
+              feels_like={groupedData[date][0].main.feels_like}
+              temp={groupedData[date][0].main.temp}
+              temp_max={groupedData[date][0].main.temp_max}
+              temp_min={groupedData[date][0].main.temp_min}
+              aipressure={`${groupedData[date][0].main.pressure}`}
+              humidity={`${groupedData[date][0].main.humidity}`}
+              windSpeed={convertWindSpeed(groupedData[date][0].wind.speed)}
+              visability={convertMtoKm(groupedData[date][0].visibility)}
+              sunrise={`${moment.unix(data.city.sunrise).format("HH:mm")} AM`}
+              sunset={`${moment.unix(data.city.sunset).format("HH:mm")} PM`}
+            />
+          ))}
+        </section>
       </main>
     </div>
   );
