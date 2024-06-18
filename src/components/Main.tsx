@@ -4,6 +4,8 @@ import Navbar from "./Navbar";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import moment from "moment";
+import Container from "./Container";
+import { convertToCelsius } from "@/utils/convertToC";
 interface WeatherResponse {
   cod: string;
   message: number;
@@ -114,12 +116,46 @@ function Main({}: Props) {
       <main className="px-3 w-full max-w-7xl mx-auto flex flex-col gap-10 pb-10 pt-4">
         <section className="today_data">
           <div>
-            <h2 className="flex gap-1 text-2xl items-start">
+            {/* today date */}
+            <h2 className="flex gap-1 text-2xl items-center mb-4">
               <p>{moment(firstData?.dt_txt).format("dddd")}</p>
-              <p>
+              <p className="text-lg">
                 ({moment(firstData?.dt_txt).format("l").split("/").join(".")})
               </p>
             </h2>
+            <Container className="gap-10 px-6 items-center">
+              {/* All Temp */}
+              <div className="flex flex-col px-4 space-y-1">
+                <span className="text-5xl">
+                  {convertToCelsius(firstData?.main.temp ?? 2) + "°C"}
+                </span>
+                <p className="text-xs space-x-1 whitespace-nowrap">
+                  <span>Feels Like</span>
+                  <span>
+                    {convertToCelsius(firstData?.main.feels_like ?? 2) + "°C"}
+                  </span>
+                </p>
+                <p className="text-xs space-x-2">
+                  <span>
+                    {convertToCelsius(firstData?.main.temp_min ?? 4) + "°C↓"}
+                  </span>
+                  <span>
+                    {convertToCelsius(firstData?.main.temp_max ?? 4) + "°C↑"}
+                  </span>
+                </p>
+              </div>
+              {/* Time and Date */}
+              <div className="flex gap-10 sm:gap-16 overflow-x-auto w-full justify-between pt-4">
+                {data.list.map((d, i) => (
+                  <div
+                    className="flex flex-col justify-between gap-2 items-center text-xs"
+                    key={i}
+                  >
+                    <p>{moment(d.dt_txt).format("LT")}</p>
+                  </div>
+                ))}
+              </div>
+            </Container>
           </div>
         </section>
         <section className="sevenDays_data"></section>
