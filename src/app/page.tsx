@@ -1,10 +1,8 @@
-import Navbar from "@/components/Navbar";
-import Image from "next/image";
-
-export default function Home() {
+import Home from "@/components/Home";
+export default function Main() {
   return (
-    <div className="flex flex-col bg-gray-100">
-      <Navbar />
-    </div>
+    <>
+      <Home />
+    </>
   );
 }
