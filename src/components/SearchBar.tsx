@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import React from "react";
 import { FaSearch } from "react-icons/fa";
 
@@ -8,11 +9,19 @@ type Props = {
   onSubmit: React.FormEventHandler<HTMLFormElement> | undefined;
 };
 
-export default function SearchBar({ value, onChange, onSubmit }: Props) {
+export default function SearchBar({
+  value,
+  onChange,
+  onSubmit,
+  className,
+}: Props) {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex relative items-center justify-center h-10"
+      className={cn(
+        "flex relative items-center justify-center h-10",
+        className,
+      )}
     >
       <input
         type="text"
